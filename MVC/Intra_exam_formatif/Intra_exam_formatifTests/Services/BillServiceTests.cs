@@ -34,7 +34,7 @@ namespace Intra_exam_formatif.Services.Tests
                     Id = 1,
                     Name = "Foo",
                     Price = 1
-                }, 
+                },
                 new Item
                 {
                     Id = 2,
@@ -49,8 +49,8 @@ namespace Intra_exam_formatif.Services.Tests
                 }
             };
 
-            Bill[] bills = new Bill[] 
-            { 
+            Bill[] bills = new Bill[]
+            {
                 new Bill
                 {
                     Id = 1,
@@ -82,12 +82,39 @@ namespace Intra_exam_formatif.Services.Tests
         public void Dispose()
         {
             using ApplicationDbContext db = new ApplicationDbContext(options);
+            db.Bills.RemoveRange(db.Bills);
+            db.Items.RemoveRange(db.Items);
+            db.SaveChanges();
         }
 
         [TestMethod()]
         public void CreateBillTest()
         {
-            Assert.Fail();
+            using ApplicationDbContext db = new ApplicationDbContext(options);
+
+            BillService service = new BillService(db);
+            Item[] i = new Item[]
+            {
+                new Item
+                {
+                    Id = 4,
+                    Name = "Test",
+                    Price = 1
+                },
+                new Item
+                {
+                    Id= 5,
+                    Name = "Test4",
+                    Price = 4
+                }
+            };
+
+            Bill b = new Bill()
+            {
+                Id = 4
+            };
+            service.CreateBill("testBill", i);
+            Assert.AreEqual(4, db.Bills.Count());
         }
     }
 }

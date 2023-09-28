@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Intra_exam_formatif.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Intra_exam_formatif.Data
@@ -9,5 +10,8 @@ namespace Intra_exam_formatif.Data
             : base(options)
         {
         }
+
+        public DbSet<Bill> Bills { get; set; } = default!;
+        public DbSet<Item> Items { get; set; } = default!;
     }
 }
