@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Intra_exam_formatif.Data;
 using Intra_exam_formatif.Models;
+using Intra_exam_formatif.Models.Exception;
 
 namespace Intra_exam_formatif.Services.Tests
 {
@@ -48,33 +49,7 @@ namespace Intra_exam_formatif.Services.Tests
                     Price = 3
                 }
             };
-
-            Bill[] bills = new Bill[]
-            {
-                new Bill
-                {
-                    Id = 1,
-                    Name = "Test",
-                    Price = 1,
-                    Items = items
-                },
-                new Bill
-                {
-                    Id = 2,
-                    Name = "Test1",
-                    Price = 2,
-                    Items = items
-                },
-                new Bill
-                {
-                    Id = 3,
-                    Name = "Test2",
-                    Price = 3,
-                    Items = items
-                },
-            };
             db.AddRange(items);
-            db.AddRange(bills);
             db.SaveChanges();
         }
 
@@ -88,7 +63,7 @@ namespace Intra_exam_formatif.Services.Tests
         }
 
         [TestMethod()]
-        public void CreateBillTest()
+        public void EmptyBillName()
         {
             using ApplicationDbContext db = new ApplicationDbContext(options);
 
@@ -109,12 +84,93 @@ namespace Intra_exam_formatif.Services.Tests
                 }
             };
 
-            Bill b = new Bill()
+            Assert.ThrowsException<Exception>(() => service.CreateBill("", i), "You need a name to create a bill");
+        }
+
+        [TestMethod()]
+        public void NullBillName()
+        {
+            using ApplicationDbContext db = new ApplicationDbContext(options);
+
+            BillService service = new BillService(db);
+            Item[] i = new Item[]
             {
-                Id = 4
+                new Item
+                {
+                    Id = 4,
+                    Name = "Test",
+                    Price = 1
+                },
+                new Item
+                {
+                    Id= 5,
+                    Name = "Test4",
+                    Price = 4
+                }
             };
-            service.CreateBill("testBill", i);
-            Assert.AreEqual(4, db.Bills.Count());
+
+            Assert.ThrowsException<Exception>(() => service.CreateBill(null, i), "You need a name to create a bill");
+        }
+
+        [TestMethod()]
+        public void ItemListIsEmpty()
+        {
+            using ApplicationDbContext db = new ApplicationDbContext(options);
+
+            BillService service = new BillService(db);
+            List<Item> list = null;
+
+            Assert.ThrowsException<ArgumentNullException>(() => service.CreateBill("test", list));
+        }
+
+        [TestMethod()]
+        public void ItemIsFree()
+        {
+            using ApplicationDbContext db = new ApplicationDbContext(options);
+
+            BillService service = new BillService(db);
+            Item[] i = new Item[]
+            {
+                new Item
+                {
+                    Id = 4,
+                    Name = "Test",
+                    Price = 0
+                },
+                new Item
+                {
+                    Id= 5,
+                    Name = "Test4",
+                    Price = 4
+                }
+            };
+
+            Assert.ThrowsException<AreYouInsaneException>(() => service.CreateBill("test", i), "Not giving free stuff either!!");
+        }
+
+        [TestMethod()]
+        public void HaveToPay()
+        {
+            using ApplicationDbContext db = new ApplicationDbContext(options);
+
+            BillService service = new BillService(db);
+            Item[] i = new Item[]
+            {
+                new Item
+                {
+                    Id = 4,
+                    Name = "Test",
+                    Price = -5
+                },
+                new Item
+                {
+                    Id= 5,
+                    Name = "Test4",
+                    Price = 4
+                }
+            };
+
+            Assert.ThrowsException<AreYouInsaneException>(() => service.CreateBill("test", i), "Not paying for you to take something!");
         }
     }
 }
