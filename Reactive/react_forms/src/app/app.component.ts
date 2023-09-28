@@ -14,7 +14,7 @@ export class AppComponent {
   constructor(private fb : FormBuilder) {}
 
   form = this.fb.group({
-    number : ["", [Validators.required, this.numberUnderNine]],
+    number : ["", [Validators.required, Validators.min(1), Validators.max(9)]],
     description : ["", [Validators.required]]
   });
 
@@ -31,13 +31,13 @@ export class AppComponent {
     const number = parseInt(control.get('number')?.value);
 
     //Regarder si le champ est rempli
-    if(!number)
+    if(number == null)
     {
       return null;
     }
 
     //Faire la validation
-    let formValid = null;
+    let formValid = false;
 
     if(number <= 9 && number >= 1)
     {
