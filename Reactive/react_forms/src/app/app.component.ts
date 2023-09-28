@@ -15,7 +15,7 @@ export class AppComponent {
 
   form = this.fb.group({
     number : ["", [Validators.required, Validators.min(1), Validators.max(9)]],
-    description : ["", [Validators.required]]
+    description : ["", [Validators.required, this.numberWordValidator]]
   });
 
   ngOnInit(): void{
@@ -25,42 +25,37 @@ export class AppComponent {
   }
 
 
-  numberUnderNine(control : AbstractControl): ValidationErrors | null
+  numberWordValidator(control : AbstractControl): ValidationErrors | null
   {
     //Aller chercher la valeur
     const number = parseInt(control.get('number')?.value);
+    const description = control.get('description')?.value;
 
-    //Regarder si le champ est rempli
-    if(number == null)
+    //Regarder si les champs sont rempli
+    if(number == null || isNaN(number) || description == null)
     {
       return null;
     }
 
     //Faire la validation
-    let formValid = false;
+    const words = description.split(/\s+/);
 
-    if(number <= 9 && number >= 1)
-    {
-      formValid = true;
-    }
-    else{
-      formValid = false;
-    }
+    const numberOfWords = words.length;
 
-    //Mettre le champ en erreur
-    if(!formValid)
+    if(numberOfWords != number)
     {
-      control.get('number')?.setErrors({numberUnderNine: true});
+      control.get('description')?.setErrors({numberOfWords: true});
+      return {numberOfWords: true}
     }
     else
     {
-      control.get('number')?.setErrors({numberUnderNine: false});
+      control.get('description')?.setErrors(null);
+      return null;
     }
-
-    return !formValid?{numberUnderNine:true}:null;
   }
 }
 
 interface Data {
   number?: string | null;
+  description?: string | null;
 }
