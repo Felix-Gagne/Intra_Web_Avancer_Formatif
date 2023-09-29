@@ -16,7 +16,10 @@
       Please enter a <strong>descritpion</strong>.
     </mat-error>
     <mat-error *ngIf="form.get('description')?.hasError('numberOfWords')">
-      Description length must match favourite number.
+      Description length must match favorite number.
+    </mat-error>
+    <mat-error *ngIf="form.hasError('nbOfLetters')">
+      Each words length must match the favorite number.
     </mat-error>
   </mat-form-field>
 

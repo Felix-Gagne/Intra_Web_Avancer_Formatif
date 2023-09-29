@@ -15,7 +15,10 @@ export class AppComponent {
 
   form = this.fb.group({
     number : ["", [Validators.required, Validators.min(1), Validators.max(9)]],
-    description : ["", [Validators.required, this.numberWordValidator]]
+    description : ["", [Validators.required]]
+  }, 
+  {
+    validators: [this.numberWordValidator, this.numberOfLettersValidator]
   });
 
   ngOnInit(): void{
@@ -30,17 +33,20 @@ export class AppComponent {
     //Aller chercher la valeur
     const number = parseInt(control.get('number')?.value);
     const description = control.get('description')?.value;
+    console.log(number);
 
     //Regarder si les champs sont rempli
-    if(number == null || isNaN(number) || description == null)
+    if(number == null || description == null)
     {
       return null;
     }
 
     //Faire la validation
     const words = description.split(/\s+/);
+    console.log(words);
 
     const numberOfWords = words.length;
+    
 
     if(numberOfWords != number)
     {
@@ -50,6 +56,41 @@ export class AppComponent {
     else
     {
       control.get('description')?.setErrors(null);
+      return null;
+    }
+
+  }
+
+  numberOfLettersValidator(control : AbstractControl): ValidationErrors | null
+  {
+    const number = parseInt(control.get('number')?.value);
+    const description = control.get('description')?.value;
+
+    if(number == null || description == null)
+    {
+      return null;
+    }
+
+    const words = description.split(/\s+/);
+    let formValid = true;
+
+    for(const w of words)
+    {
+      console.log("word lenght: " + Array.from(w).length);
+      console.log("mot: " + w)
+      if(Array.from(w).length !== number)
+      {
+        formValid = false;
+        break;
+      }
+    };
+
+    if(!formValid)
+    {
+      control.get('description')?.setErrors({numberOfLetters: true});
+      return {nbOfLetters : true};
+    }
+    else{
       return null;
     }
   }
